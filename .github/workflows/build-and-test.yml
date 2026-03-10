@@ -1,13 +1,35 @@
-
-name: Build and test
-
+name: Build and Release JAR 
+ 
+# 触发条件：当有代码推送到 main 分支时自动运行 
 on:
-  pull_request:
-    branches: [ master, main, nightly ]
   push:
-    branches: [ master, main, nightly ]
-
+    branches: [ "main" ] # 请根据你的实际分支名称修改，如 master 或 main 
+ 
+# 任务定义 
 jobs:
-  build-and-test:
-    uses: GTNewHorizons/GTNH-Actions-Workflows/.github/workflows/build-and-test.yml@master
-    secrets: inherit
+  build:
+    name: Build JAR 
+    runs-on: ubuntu-latest # 指定运行环境为最新的 Ubuntu 系统[citation:2]()
+ 
+    steps:
+      # 1. 拉取代码 
+      - name: Checkout code 
+        uses: actions/checkout@v4 # 使用官方 Action 获取最新代码[citation:2]()
+ 
+      # 2. 配置 Java 环境 
+      - name: Setup JDK 
+        uses: actions/setup-java@v4 # 使用官方 Action 安装 JDK[citation:2]()
+        with:
+          distribution: 'temurin' # 推荐使用 Eclipse Temurin 发行版[citation:2]()
+          java-version: '17'      # 根据项目需求选择版本，如 11 或 17[citation:2]()
+ 
+      # 3. 构建权限赋予与打包 
+      - name: Build with Maven 
+        run: mvn -B package --file pom.xml 
+ 
+      # 4. 上传构建产物 
+      - name: Upload JAR Artifact 
+        uses: actions/upload-artifact@v4 
+        with:
+          name: my-app-jar # 产物名称 
+          path: target/*.jar # JAR 文件通常生成在 target 目录下 
